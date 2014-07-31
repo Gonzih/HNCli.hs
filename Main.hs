@@ -6,6 +6,8 @@ import Control.Monad (mzero)
 import Network.HTTP.Conduit
 import Data.ByteString.Lazy.Internal (ByteString(..))
 import Text.Printf (printf)
+import Data.List (isInfixOf)
+import Data.Char (toLower)
 
 data Item = Item { title        :: String
                  , url          :: String
@@ -51,6 +53,12 @@ main = do
     string <- jsonData
     let feed = decode string :: Maybe Feed
     case feed of
-      Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ items parsedFeed
+      Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       a -> print a
     where formattedLine item = printf "%-3d (%-3d) %s\n          %s\n" (points item) (commentCount item) (title item) (url item)
+          isInteresting item = or [bool `isInfixOf` map toLower (title item) | bool <- interestingKeywords]
+          interestingKeywords = [ "haskell"
+                                , "clojure"
+                                , "arduino"
+                                , "raspberry"
+                                ]
