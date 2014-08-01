@@ -61,7 +61,7 @@ jsonData = simpleHttp "http://api.ihackernews.com/page" `catch` statusExceptionH
 main :: IO ()
 main = do
     string <- jsonData
-    let feed   = decode string :: Maybe Feed
+    let feed = decode string :: Maybe Feed
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       Nothing         -> return ()
