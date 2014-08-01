@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+module HNCli where
+
 import Data.Aeson
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad (mzero)
