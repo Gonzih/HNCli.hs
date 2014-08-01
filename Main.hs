@@ -57,9 +57,9 @@ main = do
         feed   = decode string :: Maybe Feed
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
-      a -> print a
-    where formattedLine item = printf "%-3d (%-3d) %s\n          %s\n" (points item) (commentCount item) (title item) (url item)
-          isInteresting item = or [bool `isInfixOf` map toLower (title item) | bool <- interestingKeywords]
+      Nothing         -> return ()
+    where formattedLine item  = printf "%-3d (%-3d) %s\n          %s\n" (points item) (commentCount item) (title item) (url item)
+          isInteresting item  = or [bool `isInfixOf` map toLower (title item) | bool <- interestingKeywords]
           interestingKeywords = [ "haskell"
                                 , "clojure"
                                 , "arduino"
