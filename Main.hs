@@ -8,6 +8,8 @@ import Data.ByteString.Lazy.Internal (ByteString(..))
 import Text.Printf (printf)
 import Data.List (isInfixOf)
 import Data.Char (toLower)
+import Control.Monad.Trans.Maybe
+import Data.Maybe (fromMaybe)
 
 data Item = Item { title        :: String
                  , url          :: String
@@ -45,13 +47,14 @@ instance FromJSON Feed where
 
     parseJSON _          = mzero
 
-jsonData :: IO Data.ByteString.Lazy.Internal.ByteString
-jsonData = simpleHttp "http://api.ihackernews.com/page"
+jsonData :: IO (Maybe Data.ByteString.Lazy.Internal.ByteString)
+jsonData = runMaybeT $ simpleHttp "http://api.ihackernews.com/page"
 
 main :: IO ()
 main = do
-    string <- jsonData
-    let feed = decode string :: Maybe Feed
+    maybeString <- jsonData
+    let string = fromMaybe "" maybeString
+        feed   = decode string :: Maybe Feed
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       a -> print a
