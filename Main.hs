@@ -4,12 +4,11 @@ import Data.Aeson
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad (mzero)
 import Network.HTTP.Conduit
-import Data.ByteString.Lazy.Internal (ByteString(..))
+import qualified Data.ByteString.Lazy as L
 import Text.Printf (printf)
 import Data.List (isInfixOf)
 import Data.Char (toLower)
-import Control.Monad.Trans.Maybe
-import Data.Maybe (fromMaybe)
+import Control.Exception (catch)
 
 data Item = Item { title        :: String
                  , url          :: String
@@ -47,14 +46,22 @@ instance FromJSON Feed where
 
     parseJSON _          = mzero
 
-jsonData :: IO (Maybe Data.ByteString.Lazy.Internal.ByteString)
-jsonData = runMaybeT $ simpleHttp "http://api.ihackernews.com/page"
+statusExceptionHandler ::  HttpException -> IO L.ByteString
+statusExceptionHandler (StatusCodeException status _ _) =
+    putStr "An error occured during download: "
+    >> print status
+    >> return L.empty
+statusExceptionHandler _ =
+    putStr "An error occured during download (unhandled)"
+    >> return L.empty
+
+jsonData :: IO L.ByteString
+jsonData = simpleHttp "http://api.ihackernews.com/page" `catch` statusExceptionHandler
 
 main :: IO ()
 main = do
-    maybeString <- jsonData
-    let string = fromMaybe "" maybeString
-        feed   = decode string :: Maybe Feed
+    string <- jsonData
+    let feed   = decode string :: Maybe Feed
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       Nothing         -> return ()
