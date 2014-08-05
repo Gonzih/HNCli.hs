@@ -69,7 +69,7 @@ main = do
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       Nothing         -> return ()
     where formattedLine       = liftM4 (printf "%-3d (%-3d) %s\n          %s\n") points commentCount title url
-          isInteresting item  = or [bool `isInfixOf` map toLower (title item) | bool <- interestingKeywords]
+          isInteresting item  = or [keyword `isInfixOf` map toLower (title item) | keyword <- interestingKeywords]
           interestingKeywords = [ "haskell"
                                 , "clojure"
                                 , "arduino"
