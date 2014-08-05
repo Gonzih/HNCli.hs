@@ -4,7 +4,7 @@ module Main where
 
 import Data.Aeson
 import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
+import Control.Monad (mzero, liftM4)
 import Network.HTTP.Conduit
 import qualified Data.ByteString.Lazy as L
 import Text.Printf (printf)
@@ -68,7 +68,7 @@ main = do
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       Nothing         -> return ()
-    where formattedLine item  = printf "%-3d (%-3d) %s\n          %s\n" (points item) (commentCount item) (title item) (url item)
+    where formattedLine       = liftM4 (printf "%-3d (%-3d) %s\n          %s\n") points commentCount title url
           isInteresting item  = or [bool `isInfixOf` map toLower (title item) | bool <- interestingKeywords]
           interestingKeywords = [ "haskell"
                                 , "clojure"
