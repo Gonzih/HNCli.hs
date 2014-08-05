@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module HNCli where
+module Main where
 
 import Data.Aeson
 import Control.Applicative ((<$>), (<*>))
