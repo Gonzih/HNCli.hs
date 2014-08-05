@@ -11,6 +11,7 @@ import Text.Printf (printf)
 import Data.List (isInfixOf)
 import Data.Char (toLower)
 import Control.Exception (catch)
+import System.IO (stderr, hPutStrLn)
 
 data Item = Item { title        :: String
                  , url          :: String
@@ -50,11 +51,11 @@ instance FromJSON Feed where
 
 statusExceptionHandler ::  HttpException -> IO L.ByteString
 statusExceptionHandler (StatusCodeException status _ _) =
-    putStr "An error occured during download: "
+    hPutStrLn stderr "An error occured during download: "
     >> print status
     >> return L.empty
 statusExceptionHandler _ =
-    putStr "An error occured during download (unhandled)"
+    hPutStrLn stderr "An error occured during download (unhandled)"
     >> return L.empty
 
 jsonData :: IO L.ByteString
