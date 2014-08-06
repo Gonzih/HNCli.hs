@@ -78,7 +78,7 @@ isInteresting :: Item -> Bool
 isInteresting item  = any (`isInfixOf` lowercasedTitle item) interestingKeywords
 
 formatFeed :: Feed -> String
-formatFeed feed = concatMap formattedLine $ filter isInteresting $ items feed
+formatFeed = concatMap formattedLine . filter isInteresting . items
 
 main :: IO ()
 main = do
