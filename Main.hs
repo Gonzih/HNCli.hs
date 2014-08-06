@@ -61,6 +61,22 @@ statusExceptionHandler _ =
 jsonData :: IO L.ByteString
 jsonData = simpleHttp "http://api.ihackernews.com/page" `catch` statusExceptionHandler
 
+formattedLine :: Item -> String
+formattedLine = liftM4 (printf "%-3d (%-3d) %s\n          %s\n") points commentCount title url
+
+lowercasedTitle :: Item -> String
+lowercasedTitle = map toLower . title
+
+interestingKeywords :: [String]
+interestingKeywords  = [ "haskell"
+                       , "clojure"
+                       , "arduino"
+                       , "raspberry"
+                       ]
+
+isInteresting :: Item -> Bool
+isInteresting item  = any (`isInfixOf` lowercasedTitle item) interestingKeywords
+
 main :: IO ()
 main = do
     string <- jsonData
@@ -68,11 +84,3 @@ main = do
     case feed of
       Just parsedFeed -> mapM_ (putStrLn . formattedLine) $ filter isInteresting $ items parsedFeed
       Nothing         -> return ()
-    where formattedLine       = liftM4 (printf "%-3d (%-3d) %s\n          %s\n") points commentCount title url
-          isInteresting item  = any (`isInfixOf` lowercasedTitle item) interestingKeywords
-          lowercasedTitle     = map toLower . title
-          interestingKeywords = [ "haskell"
-                                , "clojure"
-                                , "arduino"
-                                , "raspberry"
-                                ]
