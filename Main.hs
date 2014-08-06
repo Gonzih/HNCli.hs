@@ -56,8 +56,9 @@ statusExceptionHandler (StatusCodeException status _ _) =
     hPutStrLn stderr "An error occured during download: "
     >> print status
     >> return L.empty
-statusExceptionHandler _ =
-    hPutStrLn stderr "An error occured during download (unhandled)"
+statusExceptionHandler exception =
+    hPutStrLn stderr "An error occured during download: "
+    >> print exception
     >> return L.empty
 
 jsonData :: IO L.ByteString
