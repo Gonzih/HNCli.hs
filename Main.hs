@@ -12,6 +12,8 @@ import Data.List (isInfixOf)
 import Data.Char (toLower)
 import Control.Exception (catch)
 import System.IO (stderr, hPutStrLn)
+import Prelude hiding (mapM_)
+import Data.Foldable (mapM_)
 
 data Item = Item { title        :: String
                  , url          :: String
@@ -81,8 +83,4 @@ formatFeed :: Feed -> String
 formatFeed = concatMap formattedLine . filter isInteresting . items
 
 main :: IO ()
-main = do
-    string <- jsonData
-    let feed = decode string :: Maybe Feed
-    maybe (return ()) printFeed feed
-    where printFeed = putStrLn . formatFeed
+main = jsonData >>= mapM_ (putStr . formatFeed) . decode
