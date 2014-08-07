@@ -83,4 +83,4 @@ formatFeed :: Feed -> String
 formatFeed = concatMap formattedLine . filter isInteresting . items
 
 main :: IO ()
-main = jsonData >>= F.mapM_ (putStr . formatFeed) . decode
+main = F.mapM_ (putStr . formatFeed) . decode =<< jsonData
