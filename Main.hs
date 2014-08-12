@@ -11,7 +11,7 @@ import Text.Printf (printf)
 import Data.List (isInfixOf)
 import Data.Char (toLower)
 import Control.Exception (catch)
-import System.IO (stderr, hPutStrLn)
+import System.IO (stderr, hPutStrLn, hPrint)
 import qualified Data.Foldable as F
 
 data Item = Item { title        :: String
@@ -53,11 +53,11 @@ instance FromJSON Feed where
 statusExceptionHandler ::  HttpException -> IO L.ByteString
 statusExceptionHandler (StatusCodeException status _ _) =
     hPutStrLn stderr "An error occured during download: "
-    >> print status
+    >> hPrint stderr status
     >> return L.empty
 statusExceptionHandler exception =
     hPutStrLn stderr "An error occured during download: "
-    >> print exception
+    >> hPrint stderr exception
     >> return L.empty
 
 jsonData :: IO L.ByteString
