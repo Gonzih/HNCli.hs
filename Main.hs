@@ -16,17 +16,14 @@ import qualified Data.Foldable as F
 
 data Item = Item { title        :: String
                  , url          :: String
-                 , id           :: Float
-                 , commentCount :: Int
-                 , points       :: Int
+                 , id           :: Maybe Int
+                 , commentCount :: Maybe Int
+                 , points       :: Maybe Int
                  , postedAgo    :: Maybe String
-                 , postedBy     :: Maybe String
+                 , atuhor       :: Maybe String
                  } deriving (Show)
 
-data Feed = Feed { nextId      :: Maybe String
-                 , items       :: [Item]
-                 , version     :: String
-                 , cachedOnUTC :: String
+data Feed = Feed { items :: [Item]
                  } deriving (Show)
 
 instance FromJSON Item where
@@ -37,16 +34,13 @@ instance FromJSON Item where
                            <*> v .: "commentCount"
                            <*> v .: "points"
                            <*> v .: "postedAgo"
-                           <*> v .: "postedBy"
+                           <*> v .: "author"
 
     parseJSON _          = mzero
 
 instance FromJSON Feed where
     parseJSON (Object v) = Feed
-                           <$> v .: "nextId"
-                           <*> v .: "items"
-                           <*> v .: "version"
-                           <*> v .: "cachedOnUTC"
+                           <$> v .: "items"
 
     parseJSON _          = mzero
 
@@ -61,10 +55,19 @@ statusExceptionHandler exception =
     >> return L.empty
 
 jsonData :: IO L.ByteString
-jsonData = simpleHttp "http://api.ihackernews.com/page" `catch` statusExceptionHandler
+jsonData = simpleHttp "http://hn.gonzih.me/" `catch` statusExceptionHandler
+
+numberFromMaybe :: Maybe Int -> Int
+numberFromMaybe (Just n) = n
+numberFromMaybe Nothing = 0
+
+getIntWith :: (Item -> Maybe Int) -> Item -> Int
+getIntWith fn = numberFromMaybe . fn
 
 formattedLine :: Item -> String
-formattedLine = liftM4 (printf "\n%-3d (%-3d) %s\n          %s\n") points commentCount title url
+formattedLine = liftM4 (printf "\n%-3d (%-3d) %s\n          %s\n") getPoints getComments title url
+                where getPoints = getIntWith points
+                      getComments = getIntWith commentCount
 
 lowercasedTitle :: Item -> String
 lowercasedTitle = map toLower . title
