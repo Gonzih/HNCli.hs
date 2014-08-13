@@ -66,7 +66,7 @@ getIntWith fn = numberFromMaybe . fn
 
 formattedLine :: Item -> String
 formattedLine = liftM4 (printf "\n%-3d (%-3d) %s\n          %s\n") getPoints getComments title url
-                where getPoints = getIntWith points
+                where getPoints   = getIntWith points
                       getComments = getIntWith commentCount
 
 lowercasedTitle :: Item -> String
