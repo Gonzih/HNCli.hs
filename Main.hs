@@ -10,6 +10,7 @@ import qualified Data.ByteString.Lazy as L
 import Text.Printf (printf)
 import Data.List (isInfixOf)
 import Data.Char (toLower)
+import Data.Maybe (fromMaybe)
 import Control.Exception (catch)
 import System.IO (stderr, hPutStrLn, hPrint)
 import qualified Data.Foldable as F
@@ -57,17 +58,10 @@ statusExceptionHandler exception =
 jsonData :: IO L.ByteString
 jsonData = simpleHttp "http://hn.gonzih.me/" `catch` statusExceptionHandler
 
-numberFromMaybe :: Maybe Int -> Int
-numberFromMaybe (Just n) = n
-numberFromMaybe Nothing = 0
-
-getIntWith :: (Item -> Maybe Int) -> Item -> Int
-getIntWith fn = numberFromMaybe . fn
-
 formattedLine :: Item -> String
 formattedLine = liftM4 (printf "\n%-3d (%-3d) %s\n          %s\n") getPoints getComments title url
-                where getPoints   = getIntWith points
-                      getComments = getIntWith commentCount
+                where getPoints   = fromMaybe 0 . points
+                      getComments = fromMaybe 0 . commentCount
 
 lowercasedTitle :: Item -> String
 lowercasedTitle = map toLower . title
